@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthLog — Health Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .landing-features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+      max-width: 900px;
+      margin: var(--space-12) auto 0;
+      padding: 0 var(--space-8);
+    }
+    .landing-feature {
+      text-align: center;
+      padding: var(--space-4);
+    }
+    .landing-feature .feat-icon {
+      font-size: 1.75rem;
+      margin-bottom: var(--space-2);
+    }
+    .landing-feature h4 {
+      font-size: var(--font-size-sm);
+      margin-bottom: var(--space-1);
+    }
+    .landing-feature p {
+      font-size: var(--font-size-xs);
+      color: var(--gray-500);
+    }
+    .landing-footer {
+      padding: var(--space-6) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: var(--font-size-xs);
+      color: var(--gray-500);
+    }
+    .landing-footer .compliance-badges {
+      display: flex;
+      gap: var(--space-3);
+    }
+    @media (max-width: 768px) {
+      .landing-features { grid-template-columns: 1fr; }
+      .role-selector { flex-direction: column; align-items: center; }
+      .landing-card h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-hero">
+    <!-- Navigation -->
+    <nav class="landing-nav">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 32 32" width="32" height="32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#009688"/>
+          <path d="M16 6v20M6 16h20" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="5" stroke="white" stroke-width="2" fill="none"/>
+        </svg>
+        HealthLog
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="compliance-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          DPDP Act 2023
+        </span>
+        <span class="compliance-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          ABDM Compliant
+        </span>
+      </div>
+    </nav>
+
+    <!-- Hero Content -->
+    <div class="landing-content">
+      <div class="landing-card">
+        <p class="text-sm text-primary font-bold mb-2" style="letter-spacing:0.1em;text-transform:uppercase;">Health Intelligence Platform</p>
+        <h1>Your Health Data,<br><span>One Unified View</span></h1>
+        <p class="text-muted" style="max-width:500px;margin:0 auto;">
+          Aggregate wearable data, track symptoms, detect anomalies, and generate AI-powered pre-visit briefs for your doctor — aligned with Indian healthcare standards.
+        </p>
+
+        <!-- Role Selector -->
+        <div class="role-selector">
+          <a href="patient.html" class="role-card">
+            <div class="role-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#007a6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h3>Patient View</h3>
+            <p>Log health data, view your logbook, track medications, and generate pre-visit briefs.</p>
+            <div class="mt-4">
+              <span class="btn btn-primary btn-sm">Open Dashboard</span>
+            </div>
+          </a>
+
+          <a href="doctor.html" class="role-card">
+            <div class="role-icon" style="background: var(--accent-50);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f57f17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            </div>
+            <h3>Doctor Portal</h3>
+            <p>Review patient briefs, annotate findings, and access longitudinal health views.</p>
+            <div class="mt-4">
+              <span class="btn btn-accent btn-sm">Open Portal</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Row -->
+    <div class="landing-features">
+      <div class="landing-feature">
+        <div class="feat-icon">&#x1F4CA;</div>
+        <h4>Wearable Integration</h4>
+        <p>Apple Health, Google Fit, Fitbit, Garmin, Oura Ring — synced in real-time.</p>
+      </div>
+      <div class="landing-feature">
+        <div class="feat-icon">&#x1F916;</div>
+        <h4>AI-Powered Insights</h4>
+        <p>Anomaly detection, correlation engine, and narrative briefs via Claude API.</p>
+      </div>
+      <div class="landing-feature">
+        <div class="feat-icon">&#x1F512;</div>
+        <h4>India-First Compliance</h4>
+        <p>Data residency in Mumbai. DPDP Act 2023. ABDM-aligned. AES-256 + TLS 1.3.</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="landing-footer">
+      <div>
+        <p>HealthLog v1.0 — Engineering Preview</p>
+        <p class="mt-2">Data stored on Indian servers (ap-south-1, Mumbai). No health data shared with third-party analytics.</p>
+      </div>
+      <div class="compliance-badges">
+        <span class="compliance-badge">AES-256</span>
+        <span class="compliance-badge">TLS 1.3</span>
+        <span class="compliance-badge">WCAG 2.1 AA</span>
+        <span class="compliance-badge">ICD-10</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

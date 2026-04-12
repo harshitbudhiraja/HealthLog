@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthLog — Doctor Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .doctor-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    .patient-panel {
+      width: 320px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--gray-200);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .patient-panel-header {
+      padding: var(--space-5) var(--space-5);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .patient-panel-body {
+      padding: var(--space-4);
+      flex: 1;
+      overflow-y: auto;
+    }
+    .doctor-main {
+      margin-left: 320px;
+      flex: 1;
+      min-height: 100vh;
+    }
+    .doctor-profile {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid var(--gray-200);
+      background: white;
+    }
+    .brief-inbox-badge {
+      background: var(--severity-high);
+      color: white;
+      font-size: 0.625rem;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .annotation-box {
+      background: #fffde7;
+      border: 1px solid var(--accent-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+    }
+    .longitudinal-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+    }
+    .longitudinal-bar .bar-fill {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--primary-400);
+      transition: width var(--transition-slow);
+    }
+    @media (max-width: 1024px) {
+      .patient-panel { width: 280px; }
+      .doctor-main { margin-left: 280px; }
+    }
+    @media (max-width: 768px) {
+      .patient-panel { position: relative; width: 100%; height: auto; max-height: 40vh; }
+      .doctor-main { margin-left: 0; }
+      .doctor-layout { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="doctor-layout">
+    <!-- ====== PATIENT LIST PANEL ====== -->
+    <aside class="patient-panel">
+      <div class="patient-panel-header">
+        <div class="flex items-center justify-between mb-4">
+          <a href="index.html" class="sidebar-logo" style="text-decoration:none;font-size:var(--font-size-base);">
+            <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
+              <rect width="32" height="32" rx="8" fill="#009688"/>
+              <path d="M16 6v20M6 16h20" stroke="white" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="16" cy="16" r="5" stroke="white" stroke-width="2" fill="none"/>
+            </svg>
+            HealthLog
+          </a>
+          <span class="badge badge-accent">Doctor Portal</span>
+        </div>
+        <h3 style="font-size:var(--font-size-base);">Patient Briefs Inbox</h3>
+        <p class="text-xs text-muted mt-1">Shared briefs from patients &middot; Token-authenticated</p>
+      </div>
+
+      <!-- Search -->
+      <div style="padding:var(--space-3) var(--space-4) 0;">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="form-input" type="text" placeholder="Search patients..." style="font-size:var(--font-size-sm);">
+        </div>
+      </div>
+
+      <div class="patient-panel-body">
+        <!-- Patient List Items -->
+        <div class="patient-list-item active" onclick="selectPatient(this, 'priya')">
+          <div class="avatar">PS</div>
+          <div style="flex:1;min-width:0;">
+            <div class="flex items-center justify-between">
+              <strong class="text-sm">Priya Sharma</strong>
+              <span class="brief-inbox-badge">3</span>
+            </div>
+            <p class="text-xs text-muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">F, 34 &middot; Hypothyroid, T2DM, HTN</p>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="badge badge-high" style="font-size:0.5625rem;">BP HIGH</span>
+              <span class="text-xs text-muted">Brief shared 14 min ago</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="patient-list-item" onclick="selectPatient(this, 'rajesh')">
+          <div class="avatar">RK</div>
+          <div style="flex:1;min-width:0;">
+            <div class="flex items-center justify-between">
+              <strong class="text-sm">Rajesh Kumar</strong>
+            </div>
+            <p class="text-xs text-muted">M, 52 &middot; T2DM, Dyslipidemia</p>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="badge badge-medium" style="font-size:0.5625rem;">HbA1c DUE</span>
+              <span class="text-xs text-muted">Brief shared 2 days ago</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="patient-list-item" onclick="selectPatient(this, 'anita')">
+          <div class="avatar">AD</div>
+          <div style="flex:1;min-width:0;">
+            <div class="flex items-center justify-between">
+              <strong class="text-sm">Anita Deshmukh</strong>
+            </div>
+            <p class="text-xs text-muted">F, 28 &middot; PCOS, Anxiety</p>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="badge badge-low" style="font-size:0.5625rem;">MOOD LOW</span>
+              <span class="text-xs text-muted">Brief shared 5 days ago</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="patient-list-item" onclick="selectPatient(this, 'vikram')">
+          <div class="avatar">VS</div>
+          <div style="flex:1;min-width:0;">
+            <div class="flex items-center justify-between">
+              <strong class="text-sm">Vikram Sethi</strong>
+            </div>
+            <p class="text-xs text-muted">M, 45 &middot; Essential HTN, Obesity</p>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="badge badge-normal" style="font-size:0.5625rem;">STABLE</span>
+              <span class="text-xs text-muted">Brief shared 1 week ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Doctor Profile -->
+      <div class="doctor-profile">
+        <div class="avatar" style="background:var(--accent-100);color:var(--accent-600);">DM</div>
+        <div>
+          <strong class="text-sm">Dr. Sunita Mehra</strong>
+          <p class="text-xs text-muted">General Medicine</p>
+          <p class="text-xs text-muted">NMC Reg: MH/2015/12345</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====== DOCTOR MAIN CONTENT ====== -->
+    <main class="doctor-main">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="flex items-center gap-4">
+          <div class="avatar lg">PS</div>
+          <div>
+            <h1 style="font-size:var(--font-size-xl);">Priya Sharma</h1>
+            <p class="page-header-sub">34F &middot; Hypothyroidism, T2DM, Essential Hypertension &middot; Data coverage: 29 days</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="compliance-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Zero-Knowledge Access
+          </span>
+          <span class="compliance-badge">
+            Token expires in 71h 46m
+          </span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="padding:0 var(--space-8);background:white;border-bottom:1px solid var(--gray-200);">
+        <div class="tabs">
+          <button class="tab active" onclick="showDocTab('brief-tab')">Latest Brief</button>
+          <button class="tab" onclick="showDocTab('longitudinal-tab')">Longitudinal View</button>
+          <button class="tab" onclick="showDocTab('history-tab')">Brief History</button>
+          <button class="tab" onclick="showDocTab('notes-tab')">My Notes</button>
+        </div>
+      </div>
+
+      <!-- ===== LATEST BRIEF TAB ===== -->
+      <div class="page-body" id="brief-tab">
+        <div class="grid-2" style="grid-template-columns:1fr 340px;gap:var(--space-6);">
+          <!-- Brief Content (Left) -->
+          <div>
+            <!-- Active Anomalies Summary -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <h4>Active Anomalies</h4>
+                <span class="text-xs text-muted">As of 12 Apr 2026, 9:45 PM</span>
+              </div>
+              <div class="card-body">
+                <div class="table-wrapper">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Metric</th><th>Observation</th><th>Period</th><th>Severity</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>BP Systolic</strong></td>
+                        <td>148 mmHg (threshold: &ge;140 per IHG-III)</td>
+                        <td>12 Apr 2026</td>
+                        <td><span class="badge badge-high">High</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Resting HR</strong></td>
+                        <td>78 bpm (baseline: 69, delta: +9)</td>
+                        <td>11–12 Apr (2d)</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>HRV (RMSSD)</strong></td>
+                        <td>34 ms (baseline: 46, &lt;mean - 1.5 SD)</td>
+                        <td>10–12 Apr (3d)</td>
+                        <td><span class="badge badge-medium">Medium</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Sleep Duration</strong></td>
+                        <td>4.8 hrs avg (baseline: 7.1 hrs)</td>
+                        <td>10–12 Apr (2/3d)</td>
+                        <td><span class="badge badge-low">Low</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Narrative -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <div class="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-600)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  <h4>AI-Generated Narrative</h4>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="badge badge-accent">Claude Sonnet 4.6</span>
+                  <span class="badge badge-gray">Prompt v2.1</span>
+                </div>
+              </div>
+              <div class="card-body" style="line-height:1.8;">
+                <p>
+                  Patient Priya Sharma (34F) presents with <strong>elevated blood pressure</strong> (148/92 mmHg) recorded on 12 April, which exceeds the Stage 1 hypertension threshold per the <em>Indian Hypertension Guidelines (IHG-III, 2024)</em>. She is currently on Amlodipine 5mg twice daily.
+                </p>
+                <p class="mt-4">
+                  <strong>Resting heart rate has been elevated</strong> for 2 consecutive days (78 bpm vs 69 bpm baseline), concurrent with a <strong>significant sleep reduction</strong> (4.8 hrs avg over 3 days vs 7.1 hrs baseline). HRV (RMSSD) has dropped to 34 ms from a 30-day average of 46 ms, indicating reduced parasympathetic activity.
+                </p>
+                <p class="mt-4">
+                  <strong>Correlation data suggests</strong> sleep deprivation is driving the HR elevation (r=0.68, 1-day lag, n=14). Additionally, Metformin adherence is at 72% (below 80% target), with missed doses correlating with self-reported energy dips (r=0.57).
+                </p>
+                <p class="mt-4">
+                  <strong>Oura Readiness Score</strong> has been below 60 for 2 consecutive days (current: 58), consistent with the autonomic stress markers.
+                </p>
+              </div>
+            </div>
+
+            <!-- Correlations for Doctor -->
+            <div class="card mb-6">
+              <div class="card-header"><h4>Detected Correlations</h4></div>
+              <div class="card-body">
+                <div class="table-wrapper">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Pattern</th><th>Connection</th><th>r-value</th><th>Lag</th><th>Sample</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Sleep &darr; &rarr; HR &uarr;</td>
+                        <td>Reduced sleep → elevated resting HR next day</td>
+                        <td><strong>0.68</strong></td>
+                        <td>1 day</td>
+                        <td>n=14</td>
+                      </tr>
+                      <tr>
+                        <td>Metformin skip &rarr; Energy &darr;</td>
+                        <td>Missed Metformin → lower energy scores</td>
+                        <td><strong>0.57</strong></td>
+                        <td>1 day</td>
+                        <td>n=11</td>
+                      </tr>
+                      <tr>
+                        <td>HIIT &rarr; HRV &uarr;</td>
+                        <td>Post-HIIT → HRV recovery next morning</td>
+                        <td><strong>0.62</strong></td>
+                        <td>12–36 hrs</td>
+                        <td>n=10</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="text-xs text-muted mt-3">Computed via Pearson/Spearman correlation. Surfaced when r &gt; 0.55 and n &ge; 10. Engine: SciPy on TimescaleDB health_events. Nightly batch. Ref: §2.4</p>
+              </div>
+            </div>
+
+            <!-- Medication Overview -->
+            <div class="card mb-6">
+              <div class="card-header"><h4>Medication Timeline & Adherence</h4></div>
+              <div class="card-body">
+                <div class="table-wrapper">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Medication</th><th>Since</th><th>Dose / Frequency</th><th>7d Adherence</th><th>30d Adherence</th><th>Correlation</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Thyronorm 50mcg</strong><br><span class="text-xs text-muted">Levothyroxine</span></td>
+                        <td>Jan 2025</td>
+                        <td>Once daily, AM (empty stomach)</td>
+                        <td><span class="badge badge-normal">100%</span></td>
+                        <td><span class="badge badge-normal">97%</span></td>
+                        <td class="text-xs">No significant correlation</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Amlodipine 5mg</strong><br><span class="text-xs text-muted">CCB — Antihypertensive</span></td>
+                        <td>Mar 2026</td>
+                        <td>Twice daily</td>
+                        <td><span class="badge badge-normal">86%</span></td>
+                        <td><span class="badge badge-normal">91%</span></td>
+                        <td class="text-xs">Skipped → BP +8 mmHg (r=0.52, below threshold)</td>
+                      </tr>
+                      <tr style="background:var(--severity-medium-bg);">
+                        <td><strong>Metformin 500mg</strong><br><span class="text-xs text-muted">Biguanide — Antidiabetic</span></td>
+                        <td>Feb 2026</td>
+                        <td>Once daily, PM (post-meal)</td>
+                        <td><span class="badge badge-medium">57%</span></td>
+                        <td><span class="badge badge-medium">72%</span></td>
+                        <td class="text-xs"><strong>Skipped → Energy -2 pts</strong> (r=0.57)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Patient's Questions -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <h4>Patient's Questions for You</h4>
+                <span class="badge badge-primary">AI-Suggested</span>
+              </div>
+              <div class="card-body">
+                <ol style="padding-left:var(--space-5);display:flex;flex-direction:column;gap:var(--space-4);line-height:1.7;">
+                  <li>
+                    <p>My blood pressure reading was 148/92 mmHg today. Should we adjust my Amlodipine dosage or add another medication?</p>
+                    <div class="annotation-box mt-2">
+                      <label class="form-label text-xs" style="color:var(--accent-600);">Your Response:</label>
+                      <textarea class="form-textarea" rows="2" placeholder="Type your response to this question..." style="border-color:var(--accent-200);font-size:var(--font-size-sm);"></textarea>
+                    </div>
+                  </li>
+                  <li>
+                    <p>My resting heart rate has been elevated alongside poor sleep. Could there be an underlying cause linking these?</p>
+                    <div class="annotation-box mt-2">
+                      <label class="form-label text-xs" style="color:var(--accent-600);">Your Response:</label>
+                      <textarea class="form-textarea" rows="2" placeholder="Type your response..." style="border-color:var(--accent-200);font-size:var(--font-size-sm);"></textarea>
+                    </div>
+                  </li>
+                  <li>
+                    <p>I've been inconsistent with Metformin (72% adherence). Are there alternative formulations that might improve my compliance?</p>
+                    <div class="annotation-box mt-2">
+                      <label class="form-label text-xs" style="color:var(--accent-600);">Your Response:</label>
+                      <textarea class="form-textarea" rows="2" placeholder="Type your response..." style="border-color:var(--accent-200);font-size:var(--font-size-sm);"></textarea>
+                    </div>
+                  </li>
+                  <li>
+                    <p>Should I get updated lab work (TSH, HbA1c, lipid panel) given these recent changes?</p>
+                    <div class="annotation-box mt-2">
+                      <label class="form-label text-xs" style="color:var(--accent-600);">Your Response:</label>
+                      <textarea class="form-textarea" rows="2" placeholder="Type your response..." style="border-color:var(--accent-200);font-size:var(--font-size-sm);"></textarea>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Sidebar (Quick Stats + Actions) -->
+          <div>
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+              <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-3);">
+                <button class="btn btn-primary w-full" onclick="showToast('Annotations saved and sent to patient.','success')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                  Save & Send Notes to Patient
+                </button>
+                <button class="btn btn-secondary w-full">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download Brief PDF
+                </button>
+                <button class="btn btn-secondary w-full">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  Copy Summary to Clipboard
+                </button>
+              </div>
+            </div>
+
+            <!-- Patient Vitals Summary -->
+            <div class="card mb-4">
+              <div class="card-header"><h4 style="font-size:var(--font-size-sm);">Current Vitals</h4></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-3);">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm">BP</span>
+                  <span class="font-bold text-high">148/92 mmHg</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm">Resting HR</span>
+                  <span class="font-bold text-medium">78 bpm</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm">HRV (RMSSD)</span>
+                  <span class="font-bold text-medium">34 ms</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm">SpO2</span>
+                  <span class="font-bold text-normal">97%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm">Sleep Avg</span>
+                  <span class="font-bold text-low">4.8 hrs</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm">Readiness (Oura)</span>
+                  <span class="font-bold text-medium">58</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm">Body Temp</span>
+                  <span class="font-bold">+0.3&deg;C</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Quality -->
+            <div class="card mb-4">
+              <div class="card-header"><h4 style="font-size:var(--font-size-sm);">Data Quality</h4></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-3);">
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span>Coverage (29/30 days)</span>
+                    <span class="font-bold">97%</span>
+                  </div>
+                  <div style="height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden;">
+                    <div style="width:97%;height:100%;background:var(--severity-normal);border-radius:3px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span>Device Confidence Avg</span>
+                    <span class="font-bold">0.93</span>
+                  </div>
+                  <div style="height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden;">
+                    <div style="width:93%;height:100%;background:var(--primary-500);border-radius:3px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span>Manual Log Frequency</span>
+                    <span class="font-bold">6/7 days</span>
+                  </div>
+                  <div style="height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden;">
+                    <div style="width:86%;height:100%;background:var(--primary-400);border-radius:3px;"></div>
+                  </div>
+                </div>
+                <p class="text-xs text-muted">Baseline computed from 30-day rolling window. 14-day minimum met. Cached in Redis (25hr TTL).</p>
+              </div>
+            </div>
+
+            <!-- Sources -->
+            <div class="card mb-4">
+              <div class="card-header"><h4 style="font-size:var(--font-size-sm);">Active Sources</h4></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-2);">
+                <div class="flex items-center gap-2">
+                  <span class="sync-dot connected"></span>
+                  <span class="text-xs">Apple HealthKit — 14m ago</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="sync-dot connected"></span>
+                  <span class="text-xs">Oura Ring — 2h ago</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="sync-dot stale"></span>
+                  <span class="text-xs text-medium">Omron BP — 26h ago</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="sync-dot connected"></span>
+                  <span class="text-xs">Manual Logs — Today</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Access Info -->
+            <div class="card">
+              <div class="card-body">
+                <div class="disclaimer" style="flex-direction:column;gap:var(--space-2);">
+                  <div class="flex items-center gap-2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary-600)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <strong>Zero-Knowledge Access</strong>
+                  </div>
+                  <p class="text-xs">You are viewing a pre-generated brief shared by the patient. You do not have access to raw data, account details, or the patient's HealthLog profile. Per §5.2 Security & Privacy and DPDP Act 2023.</p>
+                  <div class="flex gap-2 mt-1">
+                    <span class="compliance-badge">72hr Token</span>
+                    <span class="compliance-badge">Read-Only + Annotate</span>
+                    <span class="compliance-badge">Audit Logged</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LONGITUDINAL VIEW TAB ===== -->
+      <div class="page-body hidden" id="longitudinal-tab">
+        <div class="card mb-6">
+          <div class="card-header">
+            <h4>30-Day Metric Trends — Priya Sharma</h4>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost btn-sm" style="font-weight:700;color:var(--primary-600);">30D</button>
+              <button class="btn btn-ghost btn-sm">90D</button>
+              <button class="btn btn-ghost btn-sm">6M</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Resting HR -->
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-bold">Resting Heart Rate</span>
+                <span class="text-sm"><span class="text-medium font-bold">78 bpm</span> <span class="text-xs text-muted">(baseline: 69)</span></span>
+              </div>
+              <div class="chart-container" style="height:120px;" id="doc-hr-chart"></div>
+              <div class="flex justify-between mt-1">
+                <span class="text-xs text-muted">13 Mar</span>
+                <span class="text-xs text-muted">28 Mar</span>
+                <span class="text-xs text-muted">12 Apr</span>
+              </div>
+            </div>
+            <!-- HRV -->
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-bold">HRV (RMSSD)</span>
+                <span class="text-sm"><span class="text-medium font-bold">34 ms</span> <span class="text-xs text-muted">(baseline: 46)</span></span>
+              </div>
+              <div class="chart-container" style="height:120px;" id="doc-hrv-chart"></div>
+            </div>
+            <!-- Sleep -->
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-bold">Sleep Duration</span>
+                <span class="text-sm"><span class="text-low font-bold">4.8 hrs</span> <span class="text-xs text-muted">(baseline: 7.1)</span></span>
+              </div>
+              <div class="chart-container" style="height:120px;" id="doc-sleep-chart"></div>
+            </div>
+            <!-- BP -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-bold">Blood Pressure (Systolic)</span>
+                <span class="text-sm"><span class="text-high font-bold">148 mmHg</span> <span class="text-xs text-muted">(threshold: 140)</span></span>
+              </div>
+              <div class="chart-container" style="height:120px;" id="doc-bp-chart"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Markers -->
+        <div class="card">
+          <div class="card-header"><h4>Key Events in Period</h4></div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-time">15 Mar 2026</div>
+                <div class="timeline-content">
+                  <strong>Amlodipine 5mg started</strong> — prescribed for newly diagnosed essential hypertension
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-time">22 Mar 2026</div>
+                <div class="timeline-content">
+                  <strong>Correlation detected:</strong> Sleep &rarr; HR pattern first identified (r=0.68)
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-time">1 Apr 2026</div>
+                <div class="timeline-content">
+                  <strong>Correlation detected:</strong> Metformin adherence &rarr; Energy (r=0.57)
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot medium"></div>
+                <div class="timeline-time">10 Apr 2026</div>
+                <div class="timeline-content">
+                  <strong class="text-medium">Sleep disruption begins</strong> — 3 consecutive nights below 5.5 hrs
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot high"></div>
+                <div class="timeline-time">12 Apr 2026</div>
+                <div class="timeline-content">
+                  <strong class="text-high">BP reading 148/92 mmHg</strong> — High severity flag triggered
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BRIEF HISTORY TAB ===== -->
+      <div class="page-body hidden" id="history-tab">
+        <div class="card">
+          <div class="card-header">
+            <h4>Brief History — Priya Sharma</h4>
+            <span class="text-xs text-muted">All previously generated briefs &middot; Versioned per §2.6</span>
+          </div>
+          <div class="card-body">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Brief ID</th><th>Generated</th><th>Anomalies</th><th>Model</th><th>Shared</th><th>Doctor Notes</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  <tr style="background:var(--primary-50);">
+                    <td><code>BRF-2026-0412-A1</code></td>
+                    <td>12 Apr 2026, 9:45 PM</td>
+                    <td><span class="badge badge-high">3 active</span></td>
+                    <td>Claude Sonnet 4.6 / v2.1</td>
+                    <td><span class="badge badge-normal">Active</span></td>
+                    <td><span class="badge badge-gray">Pending</span></td>
+                    <td><button class="btn btn-ghost btn-sm">View</button></td>
+                  </tr>
+                  <tr>
+                    <td><code>BRF-2026-0405-A1</code></td>
+                    <td>5 Apr 2026, 8:30 PM</td>
+                    <td><span class="badge badge-low">1 active</span></td>
+                    <td>Claude Sonnet 4.6 / v2.1</td>
+                    <td><span class="badge badge-gray">Expired</span></td>
+                    <td><span class="badge badge-normal">Completed</span></td>
+                    <td><button class="btn btn-ghost btn-sm">View</button></td>
+                  </tr>
+                  <tr>
+                    <td><code>BRF-2026-0322-A1</code></td>
+                    <td>22 Mar 2026, 7:15 PM</td>
+                    <td><span class="badge badge-normal">0 active</span></td>
+                    <td>Claude Sonnet 4.6 / v2.0</td>
+                    <td><span class="badge badge-gray">Expired</span></td>
+                    <td><span class="badge badge-normal">Completed</span></td>
+                    <td><button class="btn btn-ghost btn-sm">View</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MY NOTES TAB ===== -->
+      <div class="page-body hidden" id="notes-tab">
+        <div class="card mb-6">
+          <div class="card-header">
+            <h4>Consultation Notes — Dr. Sunita Mehra</h4>
+            <span class="text-xs text-muted">NMC Reg: MH/2015/12345</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group mb-4">
+              <label class="form-label">Clinical Impression</label>
+              <textarea class="form-textarea" rows="4" placeholder="Document your clinical impression based on the brief data and in-person examination..."></textarea>
+            </div>
+            <div class="form-group mb-4">
+              <label class="form-label">Plan / Advice</label>
+              <textarea class="form-textarea" rows="4" placeholder="Treatment plan, medication changes, lifestyle advice, follow-up schedule..."></textarea>
+            </div>
+            <div class="form-group mb-4">
+              <label class="form-label">Investigations Ordered</label>
+              <textarea class="form-textarea" rows="2" placeholder="e.g., TSH, HbA1c, Lipid Panel, CBC, Serum Creatinine..."></textarea>
+            </div>
+            <div class="form-group mb-4">
+              <label class="form-label">Follow-Up</label>
+              <div class="grid-2" style="gap:var(--space-4);">
+                <input class="form-input" type="date">
+                <select class="form-select">
+                  <option>In-person consultation</option>
+                  <option>Teleconsultation</option>
+                  <option>Brief review only</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-muted">Notes are sent to the patient's app and stored in <code>brief_versions.doctor_notes</code></span>
+            </div>
+            <div class="flex gap-3">
+              <button class="btn btn-secondary">Save as Draft</button>
+              <button class="btn btn-primary" onclick="showToast('Notes saved and sent to patient.','success')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                Save & Send to Patient
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory Notice -->
+        <div class="compliance-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-600)" stroke-width="2" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <strong>Regulatory:</strong> Clinical notes are the physician's record per Indian Medical Council (Professional Conduct, Etiquette and Ethics) Regulations, 2002. Electronic records maintained per the Information Technology Act, 2000 and the DPDP Act 2023. Doctor identity verified via NMC Medical Registration Number. All annotations are timestamped and audit-logged.
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+  <script>
+    // Doctor-specific tab switching
+    function showDocTab(tabId) {
+      document.querySelectorAll('.doctor-main .page-body, .doctor-main .tab').forEach(el => {
+        if (el.classList.contains('tab')) {
+          el.classList.remove('active');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+      document.getElementById(tabId).classList.remove('hidden');
+      // Find the clicked tab button
+      event.target.classList.add('active');
+    }
+
+    // Patient list selection
+    function selectPatient(el, patientId) {
+      document.querySelectorAll('.patient-list-item').forEach(item => item.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // Initialize doctor charts
+    document.addEventListener('DOMContentLoaded', function() {
+      // HR chart for doctor view
+      const hrData = [68,69,70,69,68,71,70,69,72,68,67,69,70,71,68,69,70,72,71,68,67,69,70,72,74,73,72,75,78,78];
+      renderBarChart('doc-hr-chart', hrData, 60, 85, [28,29]);
+
+      // HRV chart
+      const hrvData = [48,45,47,50,44,46,49,43,47,45,48,46,44,47,45,48,46,43,47,45,42,44,46,43,40,38,42,36,35,34];
+      renderBarChart('doc-hrv-chart', hrvData, 25, 55, [27,28,29]);
+
+      // Sleep chart
+      const sleepData = [7.2,6.8,7.5,7.0,7.3,6.5,7.1,7.4,6.9,7.2,7.0,6.8,7.3,7.1,7.5,6.7,7.0,7.2,6.9,7.1,7.4,6.8,7.0,7.2,6.5,5.8,5.2,4.5,5.0,4.8];
+      renderBarChart('doc-sleep-chart', sleepData, 3, 9, [26,27,28,29]);
+
+      // BP chart
+      const bpData = [125,128,126,130,124,128,132,126,129,127,130,128,125,132,128,126,130,127,129,131,128,130,133,129,132,135,138,140,142,148];
+      renderBarChart('doc-bp-chart', bpData, 110, 155, [27,28,29]);
+    });
+
+    function renderBarChart(containerId, data, minVal, maxVal, anomalyIndices) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      const range = maxVal - minVal;
+      data.forEach((val, i) => {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        const height = ((val - minVal) / range) * 100;
+        bar.style.height = Math.max(4, Math.min(100, height)) + '%';
+        if (anomalyIndices && anomalyIndices.includes(i)) {
+          bar.classList.add('anomaly');
+        }
+        bar.title = val.toString();
+        container.appendChild(bar);
+      });
+    }
+  </script>
+</body>
+</html>
